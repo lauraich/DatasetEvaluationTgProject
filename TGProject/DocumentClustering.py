@@ -527,27 +527,33 @@ class DocumentClustering:
             
         rta=json.loads(rta.content)
         
+        countClusters=0
         if("clusters" in rta.keys()):
             indexCluster=0
+            
             for cluster in rta["clusters"]:
                 if("documents" in cluster.keys()):
+                    
                     for doc in cluster["documents"]:
                        labelsOverlapped[doc].append(indexCluster)
-                indexCluster=indexCluster+1
-        
-        
+                    
+                    indexCluster=indexCluster+1
+                    countClusters=countClusters+1
+        band=False
         for index in range(len(labelsOverlapped)):
             if(len(labelsOverlapped[index])==0):
                 labelsOverlapped[index].append(len(rta["clusters"]))
+                if(band==False):
+                    countClusters=countClusters+1
+                    band=True
 
-        
+        self.numClusters=countClusters
         centroids = []
-        for i in range(len(rta["clusters"])):
+        for i in range(countClusters):
             vectorCondicion=[True if i in labelsOverlapped[j] else False for j in range(len(abstractsList)) ]
             articles=X_lsa[vectorCondicion]
             centroid = articles.mean(axis=0)
             centroids.append(centroid)
-
         return labelsOverlapped,X_lsa,centroids
     
     def executeLingo(self,abstractsList,numeroClusters=None):
@@ -569,13 +575,17 @@ class DocumentClustering:
         body={
                 "language": "English",
                 "algorithm": "Lingo",
-                "documents": documents
+                "documents": documents,
+                "parameters": {
+                    "desiredClusterCount":  self.numClusters
+                }
              
         }
         url="http://localhost:8080/service/cluster"
         rta=requests.post(url,json=body)
             
         rta=json.loads(rta.content)
+       
         countClusters=0
         if("clusters" in rta.keys()):
             indexCluster=0
@@ -583,24 +593,23 @@ class DocumentClustering:
                 if("documents" in cluster.keys()):
                     for doc in cluster["documents"]:
                        labelsOverlapped[doc].append(indexCluster)
-                indexCluster=indexCluster+1
-                countClusters=countClusters+1
-        
-        
+                    indexCluster=indexCluster+1
+                    countClusters=countClusters+1
+        band=False
         for index in range(len(labelsOverlapped)):
             if(len(labelsOverlapped[index])==0):
                 labelsOverlapped[index].append(len(rta["clusters"]))
-                countClusters=countClusters+1
+                if(band==False):
+                    countClusters=countClusters+1
+                    band=True
 
         self.numClusters=countClusters
-        print("countClusters",countClusters)
         centroids = []
         for i in range(countClusters):
             vectorCondicion=[True if i in labelsOverlapped[j] else False for j in range(len(abstractsList)) ]
             articles=X_lsa[vectorCondicion]
             centroid = articles.mean(axis=0)
             centroids.append(centroid)
-
         return labelsOverlapped,X_lsa,centroids
   
     

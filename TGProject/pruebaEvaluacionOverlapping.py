@@ -168,7 +168,7 @@ class PrincipalOverlapping:
                 """ if(np.isnan(self.centroids_pred[clasePred][0])):
                     centroid_similitudes.append((claseReal, clasePred,-1))
                 else: """
-                print(self.centroids_pred)
+                
                 similitude=cosine_similarity([self.centroids_true[claseReal]], [self.centroids_pred[clasePred]])
                 centroid_similitudes.append((claseReal, clasePred,similitude))
         return centroid_similitudes

@@ -88,7 +88,7 @@ for iteracion in range(numEjecuciones):
         label_predStc.append(lbl[0])
     ratioStc=dc.SSE(np.array(centroidsStc), X_lsaStc, label_predStc)
     #Evaluación
-    principalStc = PrincipalOverlapping(data=X.toarray(),labels_true=y_true,labels_pred=labelsStc,cantidadDeClases=numeroClases, cantidadDeClusters=numClusters)
+    principalStc = PrincipalOverlapping(data=X.toarray(),labels_true=y_true,labels_pred=labelsStc,cantidadDeClases=numeroClases, cantidadDeClusters=dc.numClusters)
     print("total",np.sum(principalStc.TotalesPorCluster))
     metricsStc=principalStc.getMetrics()
     stc_avg[0]+=ratioStc

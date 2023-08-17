@@ -73,10 +73,10 @@ class DataSetProcessing:
             text.append(sad[item]+" "+title[item]+" "+keywords[item])
         topics=meta_data['Topics'].tolist()
         for x in range(len(topics)):
-            if str(topics[x]) == 'NaN':
+            if str(topics[x]) == 'nan':
                 text.pop(x)
         docs=objTXTProcesing.preProcesingListData(text)
-        topics=[str(x).split("\n") for x in topics if str(x) != 'NaN']
+        topics=[str(x).split("\n") for x in topics if str(x) != 'nan']
         newTopics=[]
         for topic in topics:
             for x in topic:
