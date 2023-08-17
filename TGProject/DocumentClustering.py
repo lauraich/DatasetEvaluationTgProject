@@ -1,9 +1,12 @@
 # Tratamiento de datos
 # ==============================================================================
+import json
+import math
 import random
 import numpy as np
 import pandas as pd
 import numpy.random
+import requests
 
 # Gráficos
 # ==============================================================================
@@ -495,5 +498,110 @@ class DocumentClustering:
         normalized_value = ((value - min_val) / (max_val - min_val)) * (new_max - new_min) + new_min
         return normalized_value
 
+    def executeSTC(self,abstractsList,numeroClusters=None):
+        if(numeroClusters==None):
+            self.numClusters=self.calculateNumClusters()
+        else:
+            self.numClusters=numeroClusters
+
+        n_components=150 if self.data.shape[1]>=150 else self.data.shape[1]
+        lsa = make_pipeline(TruncatedSVD(n_components=n_components))
+        X_lsa = lsa.fit_transform(self.data.toarray())
+        labelsOverlapped=[]
+        for i in range(len(abstractsList)):
+            labelsOverlapped.append([])
+    
+        documents=[]
+        for abs in abstractsList:
+            documents.append({"title":abs})
+        body={
+                "language": "English",
+                "algorithm": "STC",
+                "documents": documents,
+                "parameters": {
+                            "maxClusters": self.numClusters
+                        }
+        }
+        url="http://localhost:8080/service/cluster"
+        rta=requests.post(url,json=body)
+            
+        rta=json.loads(rta.content)
+        
+        if("clusters" in rta.keys()):
+            indexCluster=0
+            for cluster in rta["clusters"]:
+                if("documents" in cluster.keys()):
+                    for doc in cluster["documents"]:
+                       labelsOverlapped[doc].append(indexCluster)
+                indexCluster=indexCluster+1
+        
+        
+        for index in range(len(labelsOverlapped)):
+            if(len(labelsOverlapped[index])==0):
+                labelsOverlapped[index].append(len(rta["clusters"]))
+
+        
+        centroids = []
+        for i in range(len(rta["clusters"])):
+            vectorCondicion=[True if i in labelsOverlapped[j] else False for j in range(len(abstractsList)) ]
+            articles=X_lsa[vectorCondicion]
+            centroid = articles.mean(axis=0)
+            centroids.append(centroid)
+
+        return labelsOverlapped,X_lsa,centroids
+    
+    def executeLingo(self,abstractsList,numeroClusters=None):
+        if(numeroClusters==None):
+            self.numClusters=self.calculateNumClusters()
+        else:
+            self.numClusters=numeroClusters
+
+        n_components=150 if self.data.shape[1]>=150 else self.data.shape[1]
+        lsa = make_pipeline(TruncatedSVD(n_components=n_components))
+        X_lsa = lsa.fit_transform(self.data.toarray())
+        labelsOverlapped=[]
+        for i in range(len(abstractsList)):
+            labelsOverlapped.append([])
+    
+        documents=[]
+        for abs in abstractsList:
+            documents.append({"title":abs})
+        body={
+                "language": "English",
+                "algorithm": "Lingo",
+                "documents": documents
+             
+        }
+        url="http://localhost:8080/service/cluster"
+        rta=requests.post(url,json=body)
+            
+        rta=json.loads(rta.content)
+        countClusters=0
+        if("clusters" in rta.keys()):
+            indexCluster=0
+            for cluster in rta["clusters"]:
+                if("documents" in cluster.keys()):
+                    for doc in cluster["documents"]:
+                       labelsOverlapped[doc].append(indexCluster)
+                indexCluster=indexCluster+1
+                countClusters=countClusters+1
+        
+        
+        for index in range(len(labelsOverlapped)):
+            if(len(labelsOverlapped[index])==0):
+                labelsOverlapped[index].append(len(rta["clusters"]))
+                countClusters=countClusters+1
+
+        self.numClusters=countClusters
+        print("countClusters",countClusters)
+        centroids = []
+        for i in range(countClusters):
+            vectorCondicion=[True if i in labelsOverlapped[j] else False for j in range(len(abstractsList)) ]
+            articles=X_lsa[vectorCondicion]
+            centroid = articles.mean(axis=0)
+            centroids.append(centroid)
+
+        return labelsOverlapped,X_lsa,centroids
+  
     
 

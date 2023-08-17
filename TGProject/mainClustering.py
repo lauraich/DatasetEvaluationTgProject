@@ -7,7 +7,7 @@ from pruebaEvaluacionOverlapping import PrincipalOverlapping
 
 
 dt=DataSetProcessing()
-docs,y_true,numeroClases,y_true_ns=dt.getDataSetArxiv()
+docs,y_true,numeroClases,y_true_ns=dt.getDataSetAAAI13()
 print("num clases",numeroClases)
 objTXTProcesing=textProcessing()
 X = objTXTProcesing.tfidf(docs)
@@ -17,11 +17,13 @@ dc=DocumentClustering(data=X,maxClusters=numeroClases)
 kmeans_avg=np.zeros(shape=15,dtype=float)
 spectral_avg=np.zeros(shape=15,dtype=float)
 fuzzy_avg=np.zeros(shape=15,dtype=float)
+stc_avg=np.zeros(shape=15,dtype=float)
+lingo_avg=np.zeros(shape=15,dtype=float)
 
-
+numEjecuciones = 1
 #Ejecución de 31 ejecuciones de los algoritmos kmeans, spectral y fuzzy
 
-for iteracion in range(31):
+for iteracion in range(numEjecuciones):
     print("Iteracion: ",iteracion)
     numClusters=dc.calculateNumClusters()
     np.random.seed(iteracion)
@@ -79,10 +81,38 @@ for iteracion in range(31):
     fuzzy_avg[0]+=ratioF
     for i in range(1,15):
         fuzzy_avg[i]+=float(metricsF[i-1])
+    #-------------PARA STC
+    labelsStc,X_lsaStc,centroidsStc= dc.executeSTC(docs,numeroClusters=numClusters)
+    label_predStc=[]
+    for lbl in labelsStc:
+        label_predStc.append(lbl[0])
+    ratioStc=dc.SSE(np.array(centroidsStc), X_lsaStc, label_predStc)
+    #Evaluación
+    principalStc = PrincipalOverlapping(data=X.toarray(),labels_true=y_true,labels_pred=labelsStc,cantidadDeClases=numeroClases, cantidadDeClusters=numClusters)
+    print("total",np.sum(principalStc.TotalesPorCluster))
+    metricsStc=principalStc.getMetrics()
+    stc_avg[0]+=ratioStc
+    for i in range(1,15):
+        stc_avg[i]+=float(metricsStc[i-1])
+    #-------------PARA Lingo
+    labelsLingo,X_lsaLingo,centroidsLingo= dc.executeLingo(docs,numeroClusters=numClusters)
+    label_predLingo=[]
+    for lbl in labelsLingo:
+        label_predLingo.append(lbl[0])
+    ratioLingo=dc.SSE(np.array(centroidsLingo), X_lsaLingo, label_predLingo)
+    #Evaluación
+    principalLingo = PrincipalOverlapping(data=X.toarray(),labels_true=y_true,labels_pred=labelsLingo,cantidadDeClases=numeroClases, cantidadDeClusters=dc.numClusters)
+    print("total",np.sum(principalLingo.TotalesPorCluster))
+    metricsLingo=principalLingo.getMetrics()
+    lingo_avg[0]+=ratioLingo
+    for i in range(1,15):
+        lingo_avg[i]+=float(metricsLingo[i-1])
+kmeans_avg=kmeans_avg/numEjecuciones
+spectral_avg=spectral_avg/numEjecuciones
+fuzzy_avg=fuzzy_avg/numEjecuciones
+stc_avg=stc_avg/numEjecuciones
+lingo_avg=lingo_avg/numEjecuciones
 
-kmeans_avg=kmeans_avg/31
-spectral_avg=spectral_avg/31
-fuzzy_avg=fuzzy_avg/31
 reporte = "-------REPORTE KMEANS-------------------\n"
 reporte += "Weighted Avg. Precision = " + str(kmeans_avg[1]) + "\n"
 reporte += "Weighted Avg. Recuerdo  = " + str(kmeans_avg[2]) + "\n"
@@ -137,6 +167,42 @@ reporteF += "Falsos Positivos= "+str(fuzzy_avg[13])+ "\n"
 reporteF += "Falsos Negativos= "+str(fuzzy_avg[14])+ "\n"
 reporteF += "Precision tp/(tp+fp)= "+str(fuzzy_avg[11]/(fuzzy_avg[11]+fuzzy_avg[13]))+" \n"
 
+reporteStc = "-------REPORTE STC-------------------\n"
+reporteStc += "Weighted Avg. Precision = " + str(stc_avg[1]) + "\n"
+reporteStc += "Weighted Avg. Recuerdo  = " + str(stc_avg[2]) + "\n"
+reporteStc += "Weighted Avg. F-measure = " + str(stc_avg[3]) + "\n"
+reporteStc += "Instancias correctamente agrupadas = " + str(stc_avg[4]) + "\n"
+reporteStc += "% Instancias correctamente agrupadas = " + str(stc_avg[5]) + "\n"
+reporteStc += "Rata ponderada de verdaderos positivos =" + str(stc_avg[6]) + "\n"
+reporteStc += "Rata ponderada de falsos positivos =" + str(stc_avg[7]) + "\n"
+reporteStc += "Exactitud promedio ponderada (Accuracy) =" + str(stc_avg[8]) + "\n"
+reporteStc += "Negative predictive value (NPV) =" + str(stc_avg[9]) + "\n"
+reporteStc += "Rata ponderada de falsos descubrimientos (FDR) =" + str(stc_avg[10]) + "\n"
+reporteStc += "SSE Avg= "+str(stc_avg[0])+"\n"
+reporteStc += "Verdaderos Positivos= "+str(stc_avg[11])+ "\n"
+reporteStc += "Verdaderos Negativos= "+str(stc_avg[12])+ "\n"
+reporteStc += "Falsos Positivos= "+str(stc_avg[13])+ "\n"
+reporteStc += "Falsos Negativos= "+str(stc_avg[14])+ "\n"
+reporteStc += "Precision tp/(tp+fp)= "+str(stc_avg[11]/(stc_avg[11]+stc_avg[13]))+" \n"
+
+reporteLingo = "-------REPORTE LINGO-------------------\n"
+reporteLingo += "Weighted Avg. Precision = " + str(lingo_avg[1]) + "\n"
+reporteLingo += "Weighted Avg. Recuerdo  = " + str(lingo_avg[2]) + "\n"
+reporteLingo += "Weighted Avg. F-measure = " + str(lingo_avg[3]) + "\n"
+reporteLingo += "Instancias correctamente agrupadas = " + str(lingo_avg[4]) + "\n"
+reporteLingo += "% Instancias correctamente agrupadas = " + str(lingo_avg[5]) + "\n"
+reporteLingo += "Rata ponderada de verdaderos positivos =" + str(lingo_avg[6]) + "\n"
+reporteLingo += "Rata ponderada de falsos positivos =" + str(lingo_avg[7]) + "\n"
+reporteLingo += "Exactitud promedio ponderada (Accuracy) =" + str(lingo_avg[8]) + "\n"
+reporteLingo += "Negative predictive value (NPV) =" + str(lingo_avg[9]) + "\n"
+reporteLingo += "Rata ponderada de falsos descubrimientos (FDR) =" + str(lingo_avg[10]) + "\n"
+reporteLingo += "SSE Avg= "+str(lingo_avg[0])+"\n"
+reporteLingo += "Verdaderos Positivos= "+str(lingo_avg[11])+ "\n"
+reporteLingo += "Verdaderos Negativos= "+str(lingo_avg[12])+ "\n"
+reporteLingo += "Falsos Positivos= "+str(lingo_avg[13])+ "\n"
+reporteLingo += "Falsos Negativos= "+str(lingo_avg[14])+ "\n"
+reporteLingo += "Precision tp/(tp+fp)= "+str(lingo_avg[11]/(lingo_avg[11]+lingo_avg[13]))+" \n"
+
 import datetime
 fecha=datetime.datetime.now()
 #name="reporte"+str(fecha)+".txt"
@@ -145,7 +211,11 @@ archivo=open(name,'w')
 archivo.write(reporte)
 archivo.write(reporteS)
 archivo.write(reporteF)
+archivo.write(reporteStc)
+archivo.write(reporteLingo)
 archivo.close()
 print(reporte)
 print(reporteS)
 print(reporteF)
+print(reporteStc)
+print(reporteLingo)
