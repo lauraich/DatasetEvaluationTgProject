@@ -8,7 +8,7 @@ from pruebaEvaluacionOverlapping import PrincipalOverlapping
 
 dt=DataSetProcessing()
 
-docs,y_true,numeroClases,y_true_ns=dt.getDataSetAAAI13()
+docs,y_true,numeroClases,y_true_ns=dt.getDataSetArxiv()
 
 print("num clases",numeroClases)
 objTXTProcesing=textProcessing()
@@ -22,7 +22,7 @@ fuzzy_avg=np.zeros(shape=15,dtype=float)
 stc_avg=np.zeros(shape=15,dtype=float)
 lingo_avg=np.zeros(shape=15,dtype=float)
 
-numEjecuciones = 1
+numEjecuciones = 31
 #Ejecución de 31 ejecuciones de los algoritmos kmeans, spectral y fuzzy
 
 for iteracion in range(numEjecuciones):
