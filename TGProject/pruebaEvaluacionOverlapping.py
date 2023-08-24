@@ -165,12 +165,12 @@ class PrincipalOverlapping:
         centroid_similitudes=[]
         for claseReal in range(self.TotalClases):
             for clasePred in range(self.TotalClusters):
-                """ if(np.isnan(self.centroids_pred[clasePred][0])):
+                #Cuando un cluster no tiene documentos 
+                if(np.isnan(self.centroids_pred[clasePred][0])):
                     centroid_similitudes.append((claseReal, clasePred,-1))
-                else: """
-                
-                similitude=cosine_similarity([self.centroids_true[claseReal]], [self.centroids_pred[clasePred]])
-                centroid_similitudes.append((claseReal, clasePred,similitude))
+                else:                 
+                    similitude=cosine_similarity([self.centroids_true[claseReal]], [self.centroids_pred[clasePred]])
+                    centroid_similitudes.append((claseReal, clasePred,similitude))
         return centroid_similitudes
     def simpleLinkage(self):
         centroid_similitudes=[]

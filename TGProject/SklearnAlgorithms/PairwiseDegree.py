@@ -1008,7 +1008,6 @@ def cosine_distances(X, Y=None, isunidimensional=True):
         # Ensure that distances between vectors and themselves are set to 0.0.
         # This may not be the case due to floating point rounding errors.
         S[np.diag_indices_from(S)] = 0.0
-    #np.rad2deg(S)
     return S
 
 

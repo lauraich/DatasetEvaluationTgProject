@@ -7,7 +7,9 @@ from pruebaEvaluacionOverlapping import PrincipalOverlapping
 
 
 dt=DataSetProcessing()
-docs,y_true,numeroClases,y_true_ns=dt.getDataSetTopicModeling()
+
+docs,y_true,numeroClases,y_true_ns=dt.getDataSetAAAI13()
+
 print("num clases",numeroClases)
 objTXTProcesing=textProcessing()
 X = objTXTProcesing.tfidf(docs)
@@ -20,7 +22,7 @@ fuzzy_avg=np.zeros(shape=15,dtype=float)
 stc_avg=np.zeros(shape=15,dtype=float)
 lingo_avg=np.zeros(shape=15,dtype=float)
 
-numEjecuciones = 31
+numEjecuciones = 1
 #Ejecución de 31 ejecuciones de los algoritmos kmeans, spectral y fuzzy
 
 for iteracion in range(numEjecuciones):
@@ -75,6 +77,8 @@ for iteracion in range(numEjecuciones):
         centroid = articles.mean(axis=0)
         centroidsF.append(centroid)
     ratioF=dc.SSE(np.array(centroidsF), X.toarray(), label_pred)
+    #labelPrueba=[lbl[i] for i in range(len(lbl)) for lbl in labelsF]
+    #print("labels", np.unique(labelPrueba))
     principalF = PrincipalOverlapping(data=X.toarray(),labels_true=y_true,labels_pred=labelsF,cantidadDeClases=numeroClases, cantidadDeClusters=numClusters)
     #PrecisionPonderadaF, RecuerdoPonderadoF, MedidaFPonderadaF, NiccF, PiccF,WtprF,WfprF, WAccuracyF, WnpvF,WfdrF=principalF.getMetrics()
     metricsF=principalF.getMetrics()

@@ -142,10 +142,10 @@ class DocumentClustering:
         lsa = make_pipeline(TruncatedSVD(n_components=5))
         X_lsa = lsa.fit_transform(self.data.toarray())
         #X_lsa=self.data.toarray()
-        sed=np.random.randint(10,self.numClusters+10)
-        for seed in range(2,12):
-            sed=np.random.randint(10,self.numClusters+10)
-            kmeans = KMeans(
+        #sed=np.random.randint(10,self.numClusters+10)
+        #for seed in range(2,12):
+            #sed=np.random.randint(10,self.numClusters+10)
+        kmeans = KMeans(
                         # tol=0.01,
                         #verbose=50,
                         n_clusters=self.numClusters,
@@ -154,13 +154,13 @@ class DocumentClustering:
                         #n_init=sed
                         #random_state=sed
                     ).fit(X_lsa)
-            labels = kmeans.labels_
-            ratio=self.SSE(kmeans.cluster_centers_, X_lsa, labels)
-            ss=silhouette_score(X_lsa, labels)
+        labels = kmeans.labels_
+        ratio=self.SSE(kmeans.cluster_centers_, X_lsa, labels)
+        ss=silhouette_score(X_lsa, labels)
             
-            if(ss>silhouetteScore): 
-                    silhouetteScore=ss
-                    self.kmeansClusterResult=kmeans
+        if(ss>silhouetteScore): 
+                silhouetteScore=ss
+                self.kmeansClusterResult=kmeans
         return X_lsa
     def SEE(self,centroides, x, labels):
         see=0
@@ -570,6 +570,8 @@ class DocumentClustering:
             labelsOverlapped.append([])
     
         documents=[]
+        if(self.numClusters>100):
+            self.numClusters=100
         for abs in abstractsList:
             documents.append({"title":abs})
         body={
@@ -585,7 +587,6 @@ class DocumentClustering:
         rta=requests.post(url,json=body)
             
         rta=json.loads(rta.content)
-       
         countClusters=0
         if("clusters" in rta.keys()):
             indexCluster=0
