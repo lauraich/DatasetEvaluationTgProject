@@ -417,6 +417,7 @@ class PrincipalOverlapping:
         for j in range(self.TotalClases):
             temp = self.NPVRate(j)
             trueNpvTotal += (temp * self.TotalesPorClase[j])
+        return trueNpvTotal / np.sum(self.TotalesPorCluster)
     def FDRRate(self, classIndex):
         fp = self.FalsePositive(classIndex)
         tp = self.TrueNegative(classIndex)

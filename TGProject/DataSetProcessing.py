@@ -190,7 +190,7 @@ class DataSetProcessing:
         StronglyCorrelatedElectrons=meta_data['Strongly Correlated Electrons'].tolist()
         Superconductivity=meta_data['Superconductivity'].tolist()
         SystemsandControl=meta_data['Systems and Control'].tolist()
-        docs=[docs[i] for i in range(100)]
+        #docs=[docs[i] for i in range(100)]
         topics=[]
         for index in range(len(docs)):
             lbl=[]
@@ -266,7 +266,7 @@ class DataSetProcessing:
         y_true_lista=[]   
         y_true=[]     
         docs=[]
-        docs=[json.loads(x) for x in lista[0:1000]]
+        docs=[json.loads(x) for x in lista]
         abstracts=[x['abstract'] +" "+x['title'] for x in docs]
         categorias=[]
         y_true_lista=[]

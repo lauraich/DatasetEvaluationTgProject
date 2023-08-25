@@ -4,15 +4,18 @@ from DocumentClustering import DocumentClustering
 from textProcessing import textProcessing
 from pruebaEvaluacion import Principal
 from pruebaEvaluacionOverlapping import PrincipalOverlapping
+import pandas as pd
 
 
 dt=DataSetProcessing()
 
-docs,y_true,numeroClases,y_true_ns=dt.getDataSetAAAI13()
+docs,y_true,numeroClases,y_true_ns=dt.getDataSetTopicModeling()
 
 print("num clases",numeroClases)
 objTXTProcesing=textProcessing()
 X = objTXTProcesing.tfidf(docs)
+mpd=pd.DataFrame(X)
+mpd.to_csv("matrizTfIDFTopicModeling.csv")
 print("Filas: ",X.shape[0])
 print("Columnas: ",X.shape[1])
 dc=DocumentClustering(data=X,maxClusters=numeroClases)
@@ -22,7 +25,7 @@ fuzzy_avg=np.zeros(shape=15,dtype=float)
 stc_avg=np.zeros(shape=15,dtype=float)
 lingo_avg=np.zeros(shape=15,dtype=float)
 
-numEjecuciones = 1
+numEjecuciones = 31
 #Ejecución de 31 ejecuciones de los algoritmos kmeans, spectral y fuzzy
 
 for iteracion in range(numEjecuciones):
