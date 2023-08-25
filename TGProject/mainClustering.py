@@ -11,6 +11,7 @@ dt=DataSetProcessing()
 
 docs,y_true,numeroClases,y_true_ns=dt.getDataSetTopicModeling()
 
+
 print("num clases",numeroClases)
 objTXTProcesing=textProcessing()
 X = objTXTProcesing.tfidf(docs)
