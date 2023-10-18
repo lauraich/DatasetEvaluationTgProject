@@ -9,16 +9,16 @@ import pandas as pd
 
 dt=DataSetProcessing()
 
-docs,y_true,numeroClases,y_true_ns=dt.getDataSetTopicModeling()
+docs,y_true,numeroClases,y_true_ns=dt.getDataSetArxiv()
 
 
 print("num clases",numeroClases)
 objTXTProcesing=textProcessing()
 X = objTXTProcesing.tfidf(docs)
-mpd=pd.DataFrame(X)
+""" mpd=pd.DataFrame(X)
 mpd.to_csv("matrizTfIDFTopicModeling.csv")
 print("Filas: ",X.shape[0])
-print("Columnas: ",X.shape[1])
+print("Columnas: ",X.shape[1]) """
 dc=DocumentClustering(data=X,maxClusters=numeroClases)
 kmeans_avg=np.zeros(shape=15,dtype=float)
 spectral_avg=np.zeros(shape=15,dtype=float)
